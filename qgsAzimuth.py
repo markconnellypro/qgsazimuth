@@ -492,18 +492,24 @@ class qgsazimuth(object):
                 return item
         return -1
     
-    def get_distanceunits_factor(self):
+    def get_distanceunits_factor(self, fromUnits=None, toUnits=None):
         """
         Determine multiplication factor between distanceunits value
         and CRS map units. If cannot calculate, assume Default (1.0).
         """
-        fromUnits = self.get_distanceunit_type(self.distanceunits)
+        if fromUnits is None:
+            fromUnits = self.distanceunits
+        fromUnits = self.get_distanceunit_type(fromUnits)
     
         if fromUnits > -1:
-            toUnits = self.drawing_layer.sourceCrs().mapUnits()
-            return QgsUnitTypes.fromUnitToUnitFactor(fromUnits, toUnits)
-        else:
-            return float(1.0)
+            if toUnits is None:
+                toUnits = self.drawing_layer.sourceCrs().mapUnits()
+            else:
+                toUnits = self.get_distanceunit_type(toUnits)
+            if toUnits > -1:
+                return QgsUnitTypes.fromUnitToUnitFactor(fromUnits, toUnits)
+
+        return float(1.0)
 
     def get_points(self, surveytype, arcpoint_count):
         """
