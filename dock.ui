@@ -1232,11 +1232,6 @@
               </item>
               <item>
                <property name="text">
-                <string>Inches</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
                 <string>Kilometers</string>
                </property>
               </item>

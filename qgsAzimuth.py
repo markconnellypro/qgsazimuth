@@ -481,15 +481,24 @@ class qgsazimuth(object):
 
             yield az, dis, zen, direction, radius
 
-    def get_distanceunit_type(self, value):
+    def get_distanceunit_enum(self, value):
         """
         Get matching distanceunit enum item, ignoring
         spacing and capitalization.
         """
-        items = list(QgsUnitTypes.DistanceUnit)
-        for item in items:
-            if self.lower_nospace_compare(item.name, value):
-                return item
+        items = QgsUnitTypes.DistanceUnit
+        if 'Degrees' in dir(items) or 'DistanceDegrees' in dir(items):
+            items = list(items)
+            for item in items:
+                if self.lower_nospace_compare(item.name, value) or self.lower_nospace_compare(item.name, "distance" + value):
+                    return item
+        else:
+            items = dir(QgsUnitTypes)
+            for item in items:
+                itemObject = getattr(QgsUnitTypes, item)
+                if isinstance(itemObject, QgsUnitTypes.DistanceUnit):
+                    if self.lower_nospace_compare(item, "distance" + value):
+                        return itemObject
         return -1
     
     def get_distanceunits_factor(self, fromUnits=None, toUnits=None):
@@ -499,13 +508,13 @@ class qgsazimuth(object):
         """
         if fromUnits is None:
             fromUnits = self.distanceunits
-        fromUnits = self.get_distanceunit_type(fromUnits)
+        fromUnits = self.get_distanceunit_enum(fromUnits)
     
         if fromUnits > -1:
             if toUnits is None:
                 toUnits = self.drawing_layer.sourceCrs().mapUnits()
             else:
-                toUnits = self.get_distanceunit_type(toUnits)
+                toUnits = self.get_distanceunit_enum(toUnits)
             if toUnits > -1:
                 return QgsUnitTypes.fromUnitToUnitFactor(fromUnits, toUnits)
 
